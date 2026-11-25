@@ -1,0 +1,5 @@
+I built a real-time voice appointment assistant using Pipecat on a FastAPI backend and a browser WebRTC dashboard.
+
+When the user clicks "Try Call" in the browser, the frontend opens a peer-to-peer WebRTC audio connection to `SmallWebRTCTransport` on the server. Incoming caller audio passes through Silero VAD (`SileroVADAnalyzer`) to detect speech boundaries, then goes to `ElevenLabsSTTService` for transcription. The transcribed text is aggregated into the conversation context and sent to Google Gemini (`gemini-2.5-flash` via `GoogleLLMService`), which handles the conversation and calls three Python tools (`check_doctor_availability`, `book_appointment`, and `cancel_appointment`) backed by a local SQLite database.
+
+The assistant is prompted to identify callers only by the phone number they say out loud and to read the digits back for confirmation before booking or cancelling. Gemini's text output streams to `ElevenLabsTTSService` and back over WebRTC as audio, while lightweight frame bridges push live transcripts and booking/cancellation events over Server-Sent Events (`/api/events`) so the dashboard updates immediately.
